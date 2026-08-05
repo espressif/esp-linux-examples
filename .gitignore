@@ -1,0 +1,14 @@
+# Build output
+build/
+docs/_build/
+*.o
+
+# Python environments
+.venv/
+__pycache__/
+*.pyc
+
+# Editor and operating-system files
+.DS_Store
+*.swp
+*~
