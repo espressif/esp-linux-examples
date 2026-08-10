@@ -25,4 +25,6 @@ Then open <http://localhost:8000/>.
 
 The site uses ESP-Docs' generic mode: it has no chip target selector. Shared
 procedures belong in `en/`; application-specific instructions stay with the
-corresponding example under `../examples/`.
+corresponding example under `../examples/`. Wrapper pages under
+`en/examples/` include each example's `README.rst` in the Sphinx site, so the
+example documentation has a single source.

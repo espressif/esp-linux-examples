@@ -21,4 +21,5 @@ build-docs:
   rules:
     - changes:
         - docs/**/*
+        - examples/**/*.rst
         - .gitlab-ci.yml

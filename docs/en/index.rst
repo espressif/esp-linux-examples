@@ -37,8 +37,14 @@ Learn how to customize the Linux platform for ESP SoCs, including boot
 flow, bootloader configuration, Linux kernel configuration, device tree,
 board support, and hardware enablement.
 
+Examples
+--------
+
+Build and run self-contained Linux userspace examples for ESP SoCs.
+
 .. toctree::
    :maxdepth: 2
    :hidden:
 
    get-started/index
+   examples/index

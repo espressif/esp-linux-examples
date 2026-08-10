@@ -15,7 +15,7 @@ esp-linux-examples/
 
 - [`docs/`](docs/README.md) contains the ESP-Docs/Sphinx website sources and
   local build instructions.
-- [`examples/`](examples/README.md) contains self-contained Linux userspace
+- [`examples/`](examples/README.rst) contains self-contained Linux userspace
   applications for ESP SoCs.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) before adding documentation or an
