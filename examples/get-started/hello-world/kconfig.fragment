@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
+#
+# SPDX-License-Identifier: CC0-1.0
+#
+# Add CONFIG_<OPTION>=y here when an example needs a kernel feature that is
+# not enabled by the base defconfig.

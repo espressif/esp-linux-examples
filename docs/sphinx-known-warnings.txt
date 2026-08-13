@@ -1,0 +1,1 @@
+# Add intentionally accepted Sphinx warnings here, one regular expression per line.
