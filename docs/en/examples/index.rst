@@ -5,3 +5,4 @@
    :hidden:
 
    get-started/index
+   network/index
