@@ -35,8 +35,18 @@ prefix to ``make`` manually:
 
    make CROSS_COMPILE=/path/to/toolchain/bin/riscv64-esp-linux-gnu-
 
-Run ``make clean`` before rebuilding with a different ``CROSS_COMPILE`` value.
-The executable is written to ``build/hello-world``.
+When a build system already sets ``CC`` in the environment or on the ``make``
+command line, the Makefile uses that compiler directly and honours
+``CPPFLAGS``, ``CFLAGS``, and ``LDFLAGS``. To stage the built executable into a
+root filesystem or packaging directory, use the ``install`` target with
+``DESTDIR`` (default ``prefix=/usr``, ``bindir=$(prefix)/bin``):
+
+.. code-block:: bash
+
+   make DESTDIR=/path/to/rootfs install
+
+Run ``make clean`` before rebuilding with a different toolchain. The executable
+is written to ``build/hello-world``.
 
 Deploy
 ------
