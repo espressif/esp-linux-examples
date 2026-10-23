@@ -12,5 +12,11 @@ Hello World
 :doc:`hello-world` shows how to build and run the first ESP Linux userspace
 program.
 
-Start with :doc:`hello-world`, then continue to peripheral and subsystem
-examples as they are added.
+GPIO Blink
+----------
+
+:doc:`blink` shows how to control a GPIO line from Linux with ``libgpiod`` and
+an external LED.
+
+Start with :doc:`hello-world`, then continue to :doc:`blink` to add a userspace
+library dependency and interact with hardware.

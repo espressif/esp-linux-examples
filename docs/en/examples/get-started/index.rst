@@ -5,3 +5,4 @@
    :hidden:
 
    hello-world
+   blink
