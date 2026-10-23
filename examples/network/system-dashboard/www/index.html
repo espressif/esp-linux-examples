@@ -1,0 +1,346 @@
+<!doctype html>
+<!--
+ SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
+ SPDX-License-Identifier: CC0-1.0
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESP Linux System Dashboard</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f3f5f7;
+  --card: #fff;
+  --text: #20242a;
+  --muted: #6a737d;
+  --line: #dfe3e7;
+  --track: #e9edf0;
+  --accent: #e7352c;
+  --ok: #16834a;
+  --warn: #b05b00;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --card: #1b1e23;
+    --text: #e7e9ec;
+    --muted: #9aa3ad;
+    --line: #30353d;
+    --track: #292e35;
+    --ok: #4dc882;
+    --warn: #f0a84b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, sans-serif;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px max(18px, calc((100vw - 1160px) / 2));
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+h1 { margin: 0; font-size: 21px; }
+h1 span { color: var(--accent); }
+#connection { color: var(--muted); white-space: nowrap; }
+#connection::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+#connection.stale::before { background: var(--warn); }
+main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  max-width: 1160px;
+  margin: auto;
+  padding: 18px;
+}
+section {
+  min-width: 0;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+section.wide { grid-column: 1 / -1; }
+h2 {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.metric { font-size: 29px; font-weight: 650; }
+.muted { color: var(--muted); }
+.bar {
+  height: 11px;
+  margin: 10px 0;
+  overflow: hidden;
+  background: var(--track);
+  border-radius: 6px;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+}
+dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 5px 14px;
+  margin: 0;
+}
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.interfaces {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+.interface {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.interface h3 { margin: 0 0 7px; font-size: 15px; }
+.pill {
+  float: right;
+  padding: 1px 7px;
+  color: var(--muted);
+  background: var(--track);
+  border-radius: 9px;
+  font-size: 11px;
+}
+.pill.up { color: var(--ok); }
+.rates {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.mono { font-family: ui-monospace, monospace; font-size: 12px; }
+footer {
+  padding: 0 18px 22px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+@media (max-width: 520px) {
+  header { align-items: flex-start; flex-direction: column; }
+  main { grid-template-columns: 1fr; padding: 12px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1><span>ESP Linux</span> System Dashboard</h1>
+    <div class="muted" id="headline">Waiting for the first sample</div>
+  </div>
+  <div id="connection" class="stale">Connecting</div>
+</header>
+<main>
+  <section>
+    <h2>CPU</h2>
+    <div class="metric" id="cpu-value">--</div>
+    <div class="bar"><i id="cpu-bar"></i></div>
+    <div class="muted" id="cpu-detail">No previous sample</div>
+  </section>
+  <section>
+    <h2>Memory</h2>
+    <div class="metric" id="memory-value">--</div>
+    <div class="bar"><i id="memory-bar"></i></div>
+    <div class="muted" id="memory-detail">--</div>
+  </section>
+  <section>
+    <h2>Runtime</h2>
+    <dl>
+      <dt>Uptime</dt><dd id="uptime">--</dd>
+      <dt>Load 1 / 5 / 15</dt><dd id="load">--</dd>
+      <dt>CPU count</dt><dd id="cpu-count">--</dd>
+      <dt>Init</dt><dd id="init">--</dd>
+    </dl>
+  </section>
+  <section class="wide">
+    <h2>System</h2>
+    <dl>
+      <dt>Platform</dt><dd id="platform">--</dd>
+      <dt>OS</dt><dd id="os">--</dd>
+      <dt>Board</dt><dd id="model">--</dd>
+      <dt>Kernel</dt><dd id="kernel">--</dd>
+      <dt>Architecture</dt><dd id="architecture">--</dd>
+      <dt>Root filesystem</dt><dd id="rootfs">--</dd>
+    </dl>
+  </section>
+  <section class="wide">
+    <h2>Network</h2>
+    <dl style="margin-bottom:12px">
+      <dt>Default route</dt><dd id="default-route">--</dd>
+    </dl>
+    <div class="interfaces" id="interfaces"></div>
+  </section>
+</main>
+<footer>Read-only telemetry from <span class="mono">/api/v1/status</span></footer>
+<script>
+"use strict";
+
+const byId = (id) => document.getElementById(id);
+let previous = null;
+
+function text(id, value) {
+  byId(id).textContent = value;
+}
+
+function percent(value) {
+  return `${Math.max(0, Math.min(100, value)).toFixed(1)}%`;
+}
+
+function bytes(value) {
+  const units = ["B", "KiB", "MiB", "GiB"];
+  let unit = 0;
+  let amount = Number(value);
+  while (amount >= 1024 && unit < units.length - 1) {
+    amount /= 1024;
+    unit++;
+  }
+  return `${amount.toFixed(unit ? 1 : 0)} ${units[unit]}`;
+}
+
+function duration(seconds) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor(seconds / 3600) % 24;
+  const minutes = Math.floor(seconds / 60) % 60;
+  const short = days === 0 && hours === 0 && minutes === 0
+    ? `${Math.floor(seconds)}s` : "";
+  return [days ? `${days}d` : "", `${hours}h`, `${minutes}m`, short]
+    .filter(Boolean).join(" ");
+}
+
+function cpuTotal(cpu) {
+  return Object.values(cpu.cumulative_jiffies)
+    .reduce((sum, value) => sum + Number(value), 0);
+}
+
+function rate(current, before, elapsed) {
+  if (!before || elapsed <= 0 || current < before) return "--";
+  return `${bytes((current - before) / elapsed)}/s`;
+}
+
+function renderInterfaces(snapshot, elapsed) {
+  const container = byId("interfaces");
+  const before = new Map(
+    (previous?.network.interfaces || []).map((item) => [item.name, item])
+  );
+  container.replaceChildren();
+  snapshot.network.interfaces.forEach((item) => {
+    const card = document.createElement("div");
+    const heading = document.createElement("h3");
+    const state = document.createElement("span");
+    const details = document.createElement("div");
+    const rates = document.createElement("div");
+    const old = before.get(item.name);
+
+    card.className = "interface";
+    heading.textContent = item.name;
+    state.className = `pill ${item.operational_state === "up" ? "up" : ""}`;
+    state.textContent = item.operational_state || "unknown";
+    heading.append(state);
+    details.className = "muted mono";
+    details.textContent =
+      `${item.addresses.join(", ") || "no address"} · MTU ${item.mtu_bytes}` +
+      `${item.carrier === null ? "" : item.carrier ? " · carrier" : " · no carrier"}`;
+    rates.className = "rates";
+    rates.textContent =
+      `RX ${rate(item.rx_bytes, old?.rx_bytes, elapsed)}  ` +
+      `TX ${rate(item.tx_bytes, old?.tx_bytes, elapsed)}`;
+    card.append(heading, details, rates);
+    container.append(card);
+  });
+}
+
+function render(snapshot) {
+  const elapsed = previous
+    ? snapshot.runtime.uptime_seconds - previous.runtime.uptime_seconds
+    : 0;
+  const sampleReady = elapsed >= 0.25;
+  const cpu = snapshot.cpu;
+  let cpuUsage = null;
+
+  if (previous && sampleReady) {
+    const totalDelta = cpuTotal(cpu) - cpuTotal(previous.cpu);
+    const idleDelta =
+      (cpu.cumulative_jiffies.idle + cpu.cumulative_jiffies.iowait) -
+      (previous.cpu.cumulative_jiffies.idle +
+       previous.cpu.cumulative_jiffies.iowait);
+    if (totalDelta > 0) cpuUsage = (totalDelta - idleDelta) * 100 / totalDelta;
+  }
+  text("cpu-value", cpuUsage === null ? "--" : percent(cpuUsage));
+  byId("cpu-bar").style.width = cpuUsage === null ? "0" : percent(cpuUsage);
+  text("cpu-detail", `${cpu.count} logical CPU${cpu.count === 1 ? "" : "s"}`);
+
+  const memory = snapshot.memory;
+  const used = Math.max(0, memory.total_bytes - memory.available_bytes);
+  const memoryUsage = memory.total_bytes ? used * 100 / memory.total_bytes : 0;
+  text("memory-value", percent(memoryUsage));
+  byId("memory-bar").style.width = percent(memoryUsage);
+  text("memory-detail", `${bytes(used)} used of ${bytes(memory.total_bytes)}`);
+
+  text("uptime", duration(snapshot.runtime.uptime_seconds));
+  text("load", [
+    snapshot.runtime.load_average.one_minute,
+    snapshot.runtime.load_average.five_minutes,
+    snapshot.runtime.load_average.fifteen_minutes
+  ].map((value) => value.toFixed(2)).join(" / "));
+  text("cpu-count", cpu.count);
+  text("init", snapshot.system.init);
+  text("platform", snapshot.system.os.family);
+  text("os", snapshot.system.os.pretty_name ||
+    [snapshot.system.os.id, snapshot.system.os.version_id].filter(Boolean).join(" "));
+  text("model", snapshot.system.model);
+  text("kernel", snapshot.system.kernel_release);
+  text("architecture", snapshot.system.architecture);
+  text("rootfs",
+    `${snapshot.system.root_filesystem.source} (${snapshot.system.root_filesystem.type})`);
+  text("headline", `${snapshot.system.hostname} · ${snapshot.system.model}`);
+  const route = snapshot.network.default_route;
+  text("default-route", route.interface ?
+    `${route.gateway || "on-link"} via ${route.interface}` : "not configured");
+  renderInterfaces(snapshot, sampleReady ? elapsed : 0);
+
+  previous = snapshot;
+}
+
+async function poll() {
+  try {
+    const response = await fetch("/api/v1/status", {cache: "no-store"});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    render(await response.json());
+    text("connection", "Live");
+    byId("connection").className = "";
+  } catch (error) {
+    text("connection", `Retrying: ${error.message}`);
+    byId("connection").className = "stale";
+  }
+  setTimeout(poll, 2000);
+}
+
+poll();
+</script>
+</body>
+</html>

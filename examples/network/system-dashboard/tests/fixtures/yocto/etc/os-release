@@ -1,0 +1,4 @@
+PRETTY_NAME="ESP Linux (Yocto)"
+ID=esplinux
+ID_LIKE="poky"
+VERSION_ID="1.0"

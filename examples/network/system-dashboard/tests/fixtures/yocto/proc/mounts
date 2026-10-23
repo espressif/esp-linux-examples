@@ -1,0 +1,2 @@
+192.168.7.1:/nfs/root / nfs rw,vers=3 0 0
+proc /proc proc rw,nosuid,nodev,noexec 0 0

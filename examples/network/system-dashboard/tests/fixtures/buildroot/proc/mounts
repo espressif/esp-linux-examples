@@ -1,0 +1,2 @@
+/dev/mtdblock3 / cramfs ro,relatime 0 0
+proc /proc proc rw,nosuid,nodev,noexec 0 0
