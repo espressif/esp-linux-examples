@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
+#
+# SPDX-License-Identifier: CC0-1.0
+
+CONFIG_GPIOLIB=y
+CONFIG_GPIO_CDEV=y
